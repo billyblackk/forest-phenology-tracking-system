@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "fpts"
+version = "0.1.0"
+description = "Forest Phenology Tracking System Backend"
+authors = ["Milan <work.milandave@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+packages = [
+    { include = "fpts", from = "src" }
+]
+
+
+[tool.poetry.dependencies]
+python = "^3.12"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
