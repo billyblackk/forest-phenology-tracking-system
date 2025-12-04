@@ -1,0 +1,50 @@
+# ------------------------
+# Python
+# ------------------------
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pkl
+
+# Byte-compiled / optimized files
+*.py[cod]
+*.so
+
+# Virtual environments
+.venv/
+venv/
+
+# ------------------------
+# Poetry
+# ------------------------
+poetry.lock
+
+# ------------------------
+# Environment & secrets
+# ------------------------
+.env
+*.env
+
+# ------------------------
+# Local data
+# ------------------------
+data/
+datasets/
+raw_data/
+processed_data/
+
+# ------------------------
+# Cache / Tools
+# ------------------------
+.ipynb_checkpoints
+mypy_cache/
+ruff_cache/
+pytest_cache/
+*.log
+
+# ------------------------
+# OS Files
+# ------------------------
+.DS_Store
+Thumbs.db
