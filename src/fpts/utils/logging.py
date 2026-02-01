@@ -28,6 +28,6 @@ def setup_logging(level: str = "INFO") -> None:
 
 def get_logger(name: Optional[str] = None) -> logging.Logger:
     """
-    Get a loggere with a consistent configuration
+    Get a logger with a consistent configuration
     """
     return logging.getLogger(name or __name__)

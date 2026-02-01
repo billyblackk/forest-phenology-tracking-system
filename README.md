@@ -157,7 +157,7 @@ class LocationSchema(BaseModel):
 ```
 
 #### `PhenologyPointResponse`
-- Response model ffor point phenology queries:
+- Response model for point phenology queries:
 ```python
 class PhenologyPointResponse(BaseModel):
     year: int
@@ -186,6 +186,7 @@ class PhenologyRepository(ABC):
         ...
 ```
 - This is an abstract contract that future storage implementations (e.g. PostGIS) must satisfy.
+
 
 #### `InMemoryPhenologyRepository`
 - A simple in-memory implementation in `src/fpts/storage/in_memory_repository.py`:
@@ -225,5 +226,170 @@ class QueryService:
 - This is the read-only application service that the API layer will depend on.
 
 ###  8. First Phenology Endpoint (Mock)
-- 
+- The API currently has a mock phenology endpoint in `src/fpts/api/main.py`:
 
+```http
+GET /phenology/point?lat=...&lon=...&year=...
+```
+- validates:
+    - `lat` in [-90, 90]
+    - `lon` in [-180, 180]
+    - `year` in [2000, 2010]
+- Logs the request
+- Returns a `PhenologyPointResponse` with realistic-looking mock dadtes (fixed pattern based on the year):
+```json
+
+{
+    "year": 2020,
+    "location": {
+        "lat": 52.5,
+        "lon": 13.4
+    },
+    "sos_date": "2020-04-15",
+    "eos_date": "2020-10-15",
+    "season_length": 183,
+    "is_forest": true
+}
+```
+
+Later, the endpoint will be wired to `QueryStorage` + real storage.
+
+### 9. Tech Stack
+
+- Language: Python (3.11+/3.12)
+- Environment & Packaging: Poetry
+- Web Framework: FastAPI
+- ASGI Server: Uvicorn
+- Configuration: pydantic-settings
+- Data Modeling:
+- Python dataclasses for domain models
+- Pydantic models for API schemas
+- Logging: Standard library logging with centralized setup
+- Planned additions:
+- Postgres + PostGIS for phenology metrics
+- rasterio / rioxarray / xarray for raster data processing
+- Background processing pipelines for ingestion and phenology metric computation
+
+### 10. Getting started
+
+Prerequisites
+- Python 3.11+ (preferably 3.12).
+- Poetry Installed.
+- (Optional) Git & GitHub for version control.
+
+
+#### Install dependencies
+From the project root:
+```bash
+poetry install
+```
+
+
+#### Run the API
+The server will start on `http://0.0.0.0:8000`
+```bash
+poetry run python -m fpts.api
+```
+
+Check:
+- Health Endpoint:
+```bash
+curl http://localhost:8000/health
+```
+
+- Phenology (mock) endpoint:
+```bash
+curl "http://localhost:8000/phenology/point?lat=52.5&lon=13.48&year=2020"
+```
+
+
+### 10. Current Project Structure
+
+```text
+forest-phenology-tracking-system/
+├── pyproject.toml
+├── .env                # Local config (not for secrets)
+├── src/
+│   └── fpts/
+│       ├── api/
+│       │   ├── __init__.py
+│       │   ├── main.py          # FastAPI app + endpoints
+│       │   └── schemas.py       # Pydantic API models
+│       ├── config/
+│       │   ├── __init__.py
+│       │   └── settings.py      # pydantic-settings configuration
+│       ├── domain/
+│       │   ├── __init__.py
+│       │   └── models.py        # Location, PhenologyMetric
+│       ├── storage/
+│       │   ├── __init__.py
+│       │   ├── phenology_repository.py   # Abstract repo interface
+│       │   └── in_memory_repository.py   # Simple in-memory implementation
+│       ├── query/
+│       │   ├── __init__.py
+│       │   └── service.py       # QueryService (read-only logic)
+│       ├── ingestion/
+│       │   └── __init__.py      # (planned)
+│       ├── processing/
+│       │   └── __init__.py      # (planned)
+│       ├── cli/
+│       │   └── __init__.py      # (planned CLI commands)
+│       └── utils/
+│           ├── __init__.py
+│           └── logging.py       # Central logging setup
+└── tests/                       # (planned)
+```
+
+### 11. Roadmap (Planned Work)
+The following features are planned but not yet implemented:
+1. Raster Ingestion & Processing
+- Ingest MODIS phenology/vegetation products
+- Use rasterio / rioxarray to:
+    - Clip to region of interest
+    - Mask forest pixels
+    - Derive per-pixel phenology metrics
+
+2. Persistent Storage (PostGIS)
+- Store derived PhenologyMetric entries in Postgres/PostGIS
+- Add spatial indexes for efficient point & polygon queries
+- Implement a PostgresPhenologyRepository that implements PhenologyRepository
+
+3. API Extensions
+- `/phenology/timeseries` – per-location multi-year time series
+- `/phenology/area` – aggregated metrics for a polygon (e.g. forest reserve)
+- Standardized error responses and better error handling
+
+4. Background Jobs & CLI
+- CLI commands for:
+    - `fpts ingest --year 2020`
+    - `fpts process --year 2020`
+- Background jobs for heavy workloads
+
+5. Testing & CI
+- Unit tests for:
+    - domain models
+    - repositories
+    - API routes
+- Integration tests for basic flows
+- GitHub Actions workflow for:
+    `poetry install`
+    `pytest`
+    linting/formatting
+
+6. Deployment & Docker
+- Dockerfile for the API
+- `docker-compose` for API + Postgres
+- Production configuration examples
+
+
+### 12. Contribution / Usage
+
+Right now, this repository is primarily a personal portfolio project showcasing:
+- Backend architecture skills
+- Proper layering (API → service → repo → domain)
+- Clean config and logging setup
+
+Future contributors can extend the system with:
+- Real raster ingestion code
+- Real database storage
+- More sophisticated APIs and metrics.
