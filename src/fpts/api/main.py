@@ -33,7 +33,7 @@ def get_point_phenology(
 
     - Validates input
     - Logs the request
-    - Returnsa  mock phenology response
+    - Returns a mock phenology response
 
     Later, this will call a QueryService that reads from PostGIS
     """
