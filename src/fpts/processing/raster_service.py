@@ -26,7 +26,7 @@ class RasterService:
         """
         Sample a raster at a given lat/ lon.
 
-        Returns the pixel valuee (band 1).
+        Returns the pixel value (band 1).
         Raises FileNotFoundError if raster does not exist.
         """
 
