@@ -5,6 +5,7 @@ import rasterio
 from fastapi.testclient import TestClient
 from rasterio.transform import from_origin
 
+from fpts.config.settings import Settings
 from fpts.api.main import create_app
 
 
@@ -26,10 +27,7 @@ def _write_geotiff(path: Path, data: np.ndarray, transform) -> None:
 
 
 def test_phenology_point_compute_mode(tmp_path: Path):
-    app = create_app()
-
-    # Redirect the app's raster repo to tmp_path (same trick as earlier)
-    app.state.raster_repo._data_dir = tmp_path
+    app = create_app(Settings(data_dir=str(tmp_path)))
 
     # Create NDVI stack under tmp_path/raw/ndvi_synth/2020/doy_*.tif
     doys = [1, 50, 100, 150, 200, 250, 300, 350]

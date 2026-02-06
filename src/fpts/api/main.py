@@ -9,13 +9,13 @@ from fpts.api.wiring import wire_in_memory_services
 logger = get_logger(__name__)
 
 
-def create_app() -> FastAPI:
-    settings = Settings()
+def create_app(settings: Settings | None = None) -> FastAPI:
+    settings = settings or Settings()
     setup_logging(level=settings.log_level)
 
     app = FastAPI(title=settings.app_name)
 
-    wire_in_memory_services(app)
+    wire_in_memory_services(app, settings=settings)
 
     # Routers
     app.include_router(phenology_router)

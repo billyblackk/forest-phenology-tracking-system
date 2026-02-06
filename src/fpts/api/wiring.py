@@ -6,22 +6,19 @@ from fpts.processing.raster_service import RasterService
 from fpts.processing.phenology_service import PhenologyComputationService
 
 
-def wire_in_memory_services(app) -> None:
+def wire_in_memory_services(app, settings: Settings) -> None:
     """
     Temporary wiring for development/testing.
-    Later, this will be replaced with PostGIS wiring.
+
+    We pass Settings in explicitly so tests can override config cleanly.
     """
-
-    settings = Settings()
-
-    # Raster repository (local filesystem)
     app.state.raster_repo = LocalRasterRepository(data_dir=settings.data_dir)
-    app.state.phenology_compute_service = PhenologyComputationService(
-        raster_repo=app.state.raster_repo
-    )
     app.state.raster_service = RasterService(raster_repo=app.state.raster_repo)
 
-    # Phenology repository (in-memory for now)
     repo = InMemoryPhenologyRepository()
     app.state.phenology_repo = repo
     app.state.query_service = QueryService(repository=repo)
+
+    app.state.phenology_compute_service = PhenologyComputationService(
+        raster_repo=app.state.raster_repo
+    )

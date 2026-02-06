@@ -5,14 +5,12 @@ import rasterio
 from fastapi.testclient import TestClient
 from rasterio.transform import from_origin
 
+from fpts.config.settings import Settings
 from fpts.api.main import create_app
 
 
 def test_debug_raster_sample_endpoint(tmp_path: Path):
-    app = create_app()
-
-    # Override the app's raster repo to point at tmp_path
-    app.state.raster_repo._data_dir = tmp_path  # simple override for test purposes
+    app = create_app(Settings(data_dir=str(tmp_path)))
 
     # Create raster in expected location
     raster_path = tmp_path / "raw" / "synthetic" / "2020.tif"
