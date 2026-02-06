@@ -1,6 +1,8 @@
 # Forest Phenology Tracking System (FPTS)
 
-A production-style backend system for computing **forest phenology metrics** (start/end of growing season, season length) from **satellite raster time series** and exposing them via a clean API.
+A Python system for computing forest **forest phenology metrics** (start/end of growing season, season length) from raster NDVI time series, designed with production-grade architecture and testability in mind.
+
+Forest phenology metrics (e.g. green-up, senescence) are often computed in notebooks or ad-hoc scripts. This project explores how such computations can be modeled, tested, and exposed as a maintainable software system.
 
 This project is designed as a **software engineering portfolio project** at the intersection of:
 - geospatial data
@@ -70,7 +72,7 @@ Supports:
 - repository-backed reads
 - raster-backed on-the-fly computation
 
-Point phenolofy returns metrics and metadata:
+Point phenology returns metrics and metadata:
 ```python
 (
 year=metric.year,
@@ -108,13 +110,12 @@ src/fpts/
 - ASGI Server: Uvicorn
 - Configuration: pydantic-settings
 - Data Modeling:
-- Python dataclasses for domain models
-- Pydantic models for API schemas
+        - Python dataclasses for domain models
+        - Pydantic models for API schemas
 - Logging: Standard library logging with centralized setup
 - Planned additions:
-- Postgres + PostGIS for phenology metrics
-- rasterio / rioxarray / xarray for raster data processing
-- Background processing pipelines for ingestion and phenology metric computation
+        - Postgres + PostGIS for phenology metrics
+        - Background processing pipelines for ingestion and phenology metric computation
 
 ---
 
