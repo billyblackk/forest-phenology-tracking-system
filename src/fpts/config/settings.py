@@ -18,3 +18,4 @@ class Settings(BaseSettings):
 
     pc_stac_url: str = "https://planetarycomputer.microsoft.com/api/stac/v1"
     mod13q1_collection: str = "modis-13Q1-061"
+    mod13q1_ndvi_asset_key: str = "250m_16_days_NDVI"
