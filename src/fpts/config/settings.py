@@ -13,3 +13,8 @@ class Settings(BaseSettings):
     data_dir: str = "data"
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
+
+    # Ingestion for Platery Computer STAC
+
+    pc_stac_url: str = "https://planetarycomputer.microsoft.com/api/stac/v1"
+    mod13q1_collection: str = "modis-13Q1-061"
