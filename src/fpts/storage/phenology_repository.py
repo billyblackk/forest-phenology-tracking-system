@@ -8,7 +8,7 @@ class PhenologyRepository(ABC):
     """
     Abstract interface for storing and retrieving phenology metrics.
 
-    Later we'll add a concrete implementation using Postgres/ PostGIS.
+    Later a concrete implementation using Postgres/ PostGIS will be added.
     For now, this is just a contract used by services.
 
     To add:

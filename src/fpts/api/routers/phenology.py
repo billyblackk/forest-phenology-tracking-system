@@ -3,7 +3,7 @@ from typing import Literal
 
 from fpts.api.schemas import LocationSchema, PhenologyPointResponse
 from fpts.api.dependencies import get_query_service, get_phenology_compute_service
-from fpts.domain.models import Location, PhenologyMetric
+from fpts.domain.models import Location
 from fpts.query.service import QueryService
 from fpts.utils.logging import get_logger
 from fpts.processing.phenology_service import PhenologyComputationService
@@ -15,12 +15,24 @@ router = APIRouter(prefix="/phenology", tags=["phenology"])
 
 @router.get("/point", response_model=PhenologyPointResponse)
 def get_point_phenology(
-    lat: float = Query(..., ge=-90.0, le=90.0),
-    lon: float = Query(..., ge=-180.0, le=180.0),
-    year: int = Query(..., ge=2000, le=2100),
-    mode: Literal["repo", "compute"] = Query("repo"),
-    product: str = Query("ndvi_synth", min_length=1),
-    threshold_frac: float = Query(0.5, gt=0.0, lt=1.0),
+    lat: float = Query(
+        ..., ge=-90.0, le=90.0, description="Latitude value for the point."
+    ),
+    lon: float = Query(
+        ..., ge=-180.0, le=180.0, description="Longitude value for the point."
+    ),
+    year: int = Query(..., ge=2000, le=2027, description="Year we want to analyse."),
+    mode: Literal["repo", "compute"] = Query(
+        "repo",
+        description="Execution mode - where to fetch metrics from. Return precomputed value from 'repo', or 'compute' it as part of request.",
+    ),
+    product: str = Query("ndvi_synth", min_length=1, description="Product to analyse."),
+    threshold_frac: float = Query(
+        0.5,
+        gt=0.0,
+        lt=1.0,
+        description="Fraction value used in calculating SOS and EOS limits.",
+    ),
     query_service: QueryService = Depends(get_query_service),
     compute_service: PhenologyComputationService = Depends(
         get_phenology_compute_service

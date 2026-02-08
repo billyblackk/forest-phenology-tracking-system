@@ -3,7 +3,7 @@ from datetime import date
 from typing import Optional
 
 
-@dataclass(frozen=True)  # frozen=True makes the dataclass hashable
+@dataclass(frozen=True)
 class Location:
     """
     A Geographic location in WGS84 (Latitude/ Longitude) coordinates.

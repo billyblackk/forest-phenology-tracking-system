@@ -34,6 +34,7 @@ class PhenologyComputationService:
         threshold_frac: float = 0.5,
         is_forest: bool = True,
     ) -> PhenologyMetric:
+
         key = (product, year)
 
         if key in self._stack_cache:
