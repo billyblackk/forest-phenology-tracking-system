@@ -20,11 +20,14 @@ from fpts.config.settings import Settings
 
 
 def sha256_file(path: Path, chunk_size: int = 1024 * 1024) -> str:
-    h = hashlib.sha256()
+    """
+    Returns the SHA-256 hash of a file's content as a hex string.
+    """
+    hash = hashlib.sha256()
     with path.open("rb") as f:
         for chunk in iter(lambda: f.read(chunk_size), b""):
-            h.update(chunk)
-    return h.hexdigest()
+            hash.update(chunk)
+    return hash.hexdigest()
 
 
 def _doy_from_iso(dt: str) -> int:
@@ -43,7 +46,7 @@ def download_to_path(
     out_path.parent.mkdir(parents=True, exist_ok=True)
     tmp_path = out_path.with_suffix(out_path.suffix + ".partial")
 
-    h = hashlib.sha256()
+    hash = hashlib.sha256()
     nbytes = 0
 
     with requests.get(url, stream=True, timeout=timeout_s) as r:
@@ -53,11 +56,11 @@ def download_to_path(
                 if not chunk:
                     continue
                 f.write(chunk)
-                h.update(chunk)
+                hash.update(chunk)
                 nbytes += len(chunk)
 
     os.replace(tmp_path, out_path)  # atomic on same filesystem
-    return (h.hexdigest(), nbytes)
+    return (hash.hexdigest(), nbytes)
 
 
 def read_plan(path: Path) -> Mod13Q1Plan:
@@ -189,8 +192,8 @@ class Mod13Q1IngestionService:
         records: list[DownloadRecord] = []
         year_dir = data_dir / "raw" / product / str(plan.year)
 
-        for a in plan.assets:
-            out = year_dir / f"doy_{a.doy:03d}.tif"
+        for asset in plan.assets:
+            out = year_dir / f"doy_{asset.doy:03d}.tif"
 
             if out.exists() and verify_existing:
                 digest = sha256_file(out)
@@ -199,24 +202,24 @@ class Mod13Q1IngestionService:
                         filename=str(out.name),
                         sha256=digest,
                         bytes=out.stat().st_size,
-                        href=a.href,
-                        item_id=a.item_id,
-                        dt=a.dt,
-                        doy=a.doy,
+                        href=asset.href,
+                        item_id=asset.item_id,
+                        dt=asset.dt,
+                        doy=asset.doy,
                     )
                 )
                 continue
 
-            digest, nbytes = download_to_path(a.href, out)
+            digest, nbytes = download_to_path(asset.href, out)
             records.append(
                 DownloadRecord(
                     filename=str(out.name),
                     sha256=digest,
                     bytes=nbytes,
-                    href=a.href,
-                    item_id=a.item_id,
-                    dt=a.dt,
-                    doy=a.doy,
+                    href=asset.href,
+                    item_id=asset.item_id,
+                    dt=asset.dt,
+                    doy=asset.doy,
                 )
             )
 
