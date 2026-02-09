@@ -10,6 +10,10 @@ import fpts.ingestion.mod13q1 as mod13q1
 from fpts.config.settings import Settings
 from fpts.ingestion.mod13q1 import Mod13Q1IngestionService
 
+from fpts.config.settings import Settings
+
+ndvi_key = Settings().mod13q1_ndvi_asset_key
+
 
 class _FakeSearch:
     def __init__(self, items):
@@ -27,6 +31,18 @@ class _FakeCatalog:
         return _FakeSearch(self._items)
 
 
+class _FakeSigned:
+    def __init__(self, d):
+        self._d = d
+
+    def to_dict(self):
+        return self._d
+
+
+def _fake_sign(item):
+    return _FakeSigned(item.to_dict())
+
+
 def test_build_plan_extracts_ndvi_and_sorts_by_doy(monkeypatch):
     # Arrange: two items out of order
     fake_items = [
@@ -34,19 +50,19 @@ def test_build_plan_extracts_ndvi_and_sorts_by_doy(monkeypatch):
             to_dict=lambda: {
                 "id": "b",
                 "properties": {"datetime": "2020-02-29T00:00:00Z"},
-                "assets": {"ndvi": {"href": "https://example.com/ndvi_b.tif"}},
+                "assets": {ndvi_key: {"href": "https://example.com/ndvi_b.tif"}},
             }
         ),
         SimpleNamespace(
             to_dict=lambda: {
                 "id": "a",
                 "properties": {"datetime": "2020-01-01T00:00:00Z"},
-                "assets": {"ndvi": {"href": "https://example.com/ndvi_a.tif"}},
+                "assets": {ndvi_key: {"href": "https://example.com/ndvi_a.tif"}},
             }
         ),
     ]
 
-    monkeypatch.setattr(mod13q1, "pc", SimpleNamespace(sign=lambda item: item))
+    monkeypatch.setattr(mod13q1, "pc", SimpleNamespace(sign=_fake_sign))
     monkeypatch.setattr(
         mod13q1.Client, "open", lambda *_args, **_kw: _FakeCatalog(fake_items)
     )
