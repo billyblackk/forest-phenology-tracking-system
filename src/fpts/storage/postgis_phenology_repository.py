@@ -5,7 +5,7 @@ from typing import Iterable
 import psycopg
 from psycopg.rows import dict_row
 
-from fpts.domain.models import PhenologyMetric
+from fpts.domain.models import Location, PhenologyMetric
 from fpts.storage.phenology_repository import PhenologyRepository
 
 
@@ -93,4 +93,12 @@ class PostGISPhenologyRepository(PhenologyRepository):
                 row = cur.fetchone()
                 if row is None:
                     return None
-                return PhenologyMetric(**row)
+
+                return PhenologyMetric(
+                    year=int(row["year"]),
+                    location=Location(lat=float(row["lat"]), lon=float(row["lon"])),
+                    sos_date=row["sos_date"],
+                    eos_date=row["eos_date"],
+                    season_length=row["season_length"],
+                    is_forest=row["is_forest"],
+                )
