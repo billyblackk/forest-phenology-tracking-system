@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import Optional, Iterable
 
 from fpts.domain.models import Location, PhenologyMetric
 
@@ -25,4 +27,23 @@ class PhenologyRepository(ABC):
         Return phenology metrics for a single location and year,
         or None if no data is available.
         """
+        raise NotImplementedError
+
+    @abstractmethod
+    def upsert(self, metric: PhenologyMetric) -> None:
+        raise NotImplementedError
+
+    @abstractmethod
+    def upsert_many(self, metrics: Iterable[PhenologyMetric]) -> None:
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_point(
+        self,
+        *,
+        lon: float,
+        lat: float,
+        year: int,
+        product: str,
+    ) -> PhenologyMetric | None:
         raise NotImplementedError
