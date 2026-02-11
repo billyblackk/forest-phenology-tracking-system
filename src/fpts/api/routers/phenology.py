@@ -58,9 +58,16 @@ def get_point_phenology(
             product=product, location=location, year=year
         )
         if metric is None:
-            raise HTTPException(
-                status_code=404, detail="No phenology data found for this location/year"
-            )
+            # fallback to compute
+            try:
+                metric = compute_service.compute_point_phenology(
+                    product=product,
+                    year=year,
+                    location=location,
+                    threshold_frac=threshold_frac,
+                )
+            except FileNotFoundError as e:
+                raise HTTPException(status_code=404, detail=str(e)) from e
     else:
         # mode == "compute"
         try:
