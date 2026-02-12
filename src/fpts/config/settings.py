@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     environment: str = "development"
     log_level: str = "info"
     data_dir: str = "data"
-    phenology_repo_backend: Literal["memory", "postgis"] = "memory"
+    phenology_repo_backend: Literal["memory", "postgis"] = "postgis"
     enable_debug_routes: bool = False
 
     # Ingestion for Platery Computer STAC
