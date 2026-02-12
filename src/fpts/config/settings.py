@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     log_level: str = "info"
     data_dir: str = "data"
     phenology_repo_backend: Literal["memory", "postgis"] = "memory"
+    enable_debug_routes: bool = False
 
     # Ingestion for Platery Computer STAC
     pc_stac_url: str = "https://planetarycomputer.microsoft.com/api/stac/v1"

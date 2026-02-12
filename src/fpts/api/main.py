@@ -22,7 +22,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     # Routers
     app.include_router(phenology_router)
-    app.include_router(debug_router)
+    if settings.enable_debug_routes or settings.environment != "production":
+        app.include_router(debug_router)
 
     @app.get("/health")
     def health_check():
