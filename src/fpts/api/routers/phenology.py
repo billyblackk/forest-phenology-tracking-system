@@ -1,7 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from typing import Literal
 
-from fpts.api.schemas import LocationSchema, PhenologyPointResponse
+from fpts.api.schemas import (
+    LocationSchema,
+    PhenologyPointResponse,
+    PhenologyTimeseriesResponse,
+    PhenologyYearMetricSchema,
+)
 from fpts.api.dependencies import get_query_service, get_phenology_compute_service
 from fpts.domain.models import Location
 from fpts.query.service import QueryService
@@ -100,4 +105,56 @@ def get_point_phenology(
         eos_date=metric.eos_date,
         season_length=metric.season_length,
         is_forest=metric.is_forest,
+    )
+
+
+@router.get("/timeseries", response_model=PhenologyTimeseriesResponse)
+def get_point_timeseries(
+    lat: float = Query(
+        ..., ge=-90.0, le=90.0, description="Latitude value for the point."
+    ),
+    lon: float = Query(
+        ..., ge=-180.0, le=180.0, description="Longitude value for the point."
+    ),
+    start_year: int = Query(
+        ..., ge=2000, le=2027, description="Start year (inclusive)."
+    ),
+    end_year: int = Query(..., ge=2000, le=2027, description="End year (inclusive)."),
+    product: str = Query("ndvi_synth", min_length=1, description="Product to analyse."),
+    query_service: QueryService = Depends(get_query_service),
+):
+    logger.info(
+        f"Phenology timeseries query received: lat: {lat}, lon: {lon}, start_year: {start_year}, end_year: {end_year}, product: {product}"
+    )
+
+    location = Location(lat=lat, lon=lon)
+
+    metrics = query_service.get_point_timeseries(
+        product=product,
+        location=location,
+        start_year=start_year,
+        end_year=end_year,
+    )
+
+    if not metrics:
+        raise HTTPException(
+            status_code=404,
+            detail="No phenology data found for this combination of product, location and year range",
+        )
+
+    return PhenologyTimeseriesResponse(
+        product=product,
+        location=LocationSchema(lat=location.lat, lon=location.lon),
+        start_year=start_year,
+        end_year=end_year,
+        metrics=[
+            PhenologyYearMetricSchema(
+                year=metric.year,
+                sos_date=metric.sos_date,
+                eos_date=metric.eos_date,
+                season_length=metric.season_length,
+                is_forest=metric.is_forest,
+            )
+            for metric in metrics
+        ],
     )
