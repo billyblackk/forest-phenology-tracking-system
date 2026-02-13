@@ -8,15 +8,9 @@ from fpts.domain.models import Location, PhenologyMetric
 from fpts.config.settings import Settings
 
 
-def test_phenology_point_returns_seeded_metric():
-    app = create_app(
-        settings=Settings(
-            phenology_repo_backend="memory",
-        )
-    )
-
+def test_phenology_point_returns_seeded_metric(app_memory):
     # Seed explicitly into the app's repo
-    repo = app.state.phenology_repo
+    repo = app_memory.state.phenology_repo
     loc = Location(lat=52.5, lon=13.4)
     repo.add_metric(
         product="test_product",
@@ -30,7 +24,7 @@ def test_phenology_point_returns_seeded_metric():
         ),
     )
 
-    client = TestClient(app)
+    client = TestClient(app_memory)
     resp = client.get(
         "/phenology/point",
         params={
@@ -53,14 +47,8 @@ def test_phenology_point_returns_seeded_metric():
     assert data["season_length"] == 183
 
 
-def test_phenology_point_returns_404_for_missing_metric():
-    app = create_app(
-        settings=Settings(
-            phenology_repo_backend="memory",
-        )
-    )
-    client = TestClient(app)
-
+def test_phenology_point_returns_404_for_missing_metric(app_memory):
+    client = TestClient(app_memory)
     resp = client.get(
         "/phenology/point",
         params={
@@ -78,13 +66,8 @@ def test_phenology_point_returns_404_for_missing_metric():
     )
 
 
-def test_phenology_point_compute_mode_returns_200():
-    app = create_app(
-        settings=Settings(
-            phenology_repo_backend="memory",
-        )
-    )
-    client = TestClient(app)
+def test_phenology_point_compute_mode_returns_200(app_memory):
+    client = TestClient(app_memory)
     resp = client.get(
         "/phenology/point",
         params={
@@ -99,13 +82,8 @@ def test_phenology_point_compute_mode_returns_200():
     assert resp.status_code == 200
 
 
-def test_phenology_point_auto_mode_returns_200():
-    app = create_app(
-        settings=Settings(
-            phenology_repo_backend="memory",
-        )
-    )
-    client = TestClient(app)
+def test_phenology_point_auto_mode_returns_200(app_memory):
+    client = TestClient(app_memory)
     resp = client.get(
         "/phenology/point",
         params={
