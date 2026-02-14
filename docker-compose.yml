@@ -15,7 +15,7 @@ services:
       retries: 30
     volumes:
       - db_data:/var/lib/postgresql/data
-      - ./src/fpts/sql:/docker-entrypoint-initdb.d:ro
+      - ./src/fpts/sql/ddl:/docker-entrypoint-initdb.d:ro
 
 volumes:
   db_data:

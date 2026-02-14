@@ -13,4 +13,4 @@ services:
       timeout: 2s
       retries: 30
     volumes:
-      - ./src/fpts/sql/phenology_metrics.sql:/docker-entrypoint-initdb.d/001_phenology_metrics.sql:ro
+      - ./src/fpts/sql/ddl/phenology_metrics.sql:/docker-entrypoint-initdb.d/001_phenology_metrics.sql:ro
