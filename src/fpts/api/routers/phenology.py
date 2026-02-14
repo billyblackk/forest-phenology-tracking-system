@@ -167,6 +167,15 @@ def get_area_phenology_stats(
     payload: GeoJSONPolygonRequest = Body(...),
     year: int = Query(..., ge=2000, le=2027, description="Year we want to analyse."),
     product: str = Query("ndvi_synth", min_length=1, description="Product to analyse."),
+    only_forest: bool = Query(
+        False, description="If True, only include forest points."
+    ),
+    min_season_length: int | None = Query(
+        None,
+        ge=0,
+        le=366,
+        description="If set, only include rows with season_length >= this value.",
+    ),
     query_service: QueryService = Depends(get_query_service),
 ):
     logger.info(f"Phenology area query received: year: {year}, product: {product}")
@@ -176,6 +185,8 @@ def get_area_phenology_stats(
             product=product,
             year=year,
             polygon_geojson=payload.geometry,
+            only_forest=only_forest,
+            min_season_length=min_season_length,
         )
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid GeoJSON geometry")

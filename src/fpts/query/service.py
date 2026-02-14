@@ -48,9 +48,13 @@ class QueryService:
         product: str,
         year: int,
         polygon_geojson: dict,
+        only_forest: bool = False,
+        min_season_length: int | None = None,
     ) -> dict | None:
         return self._repository.get_area_stats(
             product=product,
             year=year,
             polygon_geojson=polygon_geojson,
+            only_forest=only_forest,
+            min_season_length=min_season_length,
         )

@@ -48,9 +48,11 @@ class PhenologyRepository(ABC):
         product: str,
         year: int,
         polygon_geojson: dict,
+        only_forest: bool = False,
+        min_season_length: int | None = None,
     ) -> dict | None:
         """
-        Aggregate stats for points intersecting polygon.
+        Aggregated stats for points intersecting polygon.
         Returns None if no rows matched.
         """
         raise NotImplementedError

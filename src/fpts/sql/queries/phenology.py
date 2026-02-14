@@ -75,5 +75,10 @@ LEFT JOIN phenology_metrics m
     AND m.product = %(product)s
     AND m.year = %(year)s
     AND ST_Covers(f.g, m.geom)
+    AND (%(only_forest)s::boolean = false OR m.is_forest = true)
+    AND (
+        %(min_season_length)s::int IS NULL
+        OR (m.season_length IS NOT NULL AND m.season_length >= %(min_season_length)s::int)
+    )
 GROUP BY f.ok
 """

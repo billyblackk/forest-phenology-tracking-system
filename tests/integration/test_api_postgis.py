@@ -274,3 +274,117 @@ def test_area_returns_400_for_invalid_geometry(app_postgis):
     )
 
     assert resp.status_code == 400
+
+
+@pytest.mark.integration
+def test_phenology_area_only_forest_filters_rows(app_postgis):
+    repo = app_postgis.state.phenology_repo
+    year = 2020
+
+    inside_forest = Location(lat=52.50, lon=13.40)
+    inside_nonforest = Location(lat=52.51, lon=13.41)
+
+    repo.upsert(
+        product="test_product",
+        metric=PhenologyMetric(
+            year=year,
+            location=inside_forest,
+            sos_date=date(year, 4, 10),
+            eos_date=date(year, 10, 10),
+            season_length=100,
+            is_forest=True,
+        ),
+    )
+    repo.upsert(
+        product="test_product",
+        metric=PhenologyMetric(
+            year=year,
+            location=inside_nonforest,
+            sos_date=date(year, 4, 10),
+            eos_date=date(year, 10, 10),
+            season_length=200,
+            is_forest=False,
+        ),
+    )
+
+    poly = {
+        "type": "Polygon",
+        "coordinates": [
+            [
+                [13.39, 52.49],
+                [13.42, 52.49],
+                [13.42, 52.52],
+                [13.39, 52.52],
+                [13.39, 52.49],
+            ]
+        ],
+    }
+
+    client = TestClient(app_postgis)
+    resp = client.post(
+        "/phenology/area",
+        params={"product": "test_product", "year": year, "only_forest": True},
+        json={"geometry": poly},
+    )
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["n"] == 1
+    assert abs(body["mean_season_length"] - 100.0) < 1e-9
+    assert abs(body["forest_fraction"] - 1.0) < 1e-9
+
+
+@pytest.mark.integration
+def test_phenology_area_min_season_length_filters_rows(app_postgis):
+    repo = app_postgis.state.phenology_repo
+    year = 2020
+
+    p1 = Location(lat=52.50, lon=13.40)  # 100
+    p2 = Location(lat=52.51, lon=13.41)  # 200
+
+    repo.upsert(
+        product="test_product",
+        metric=PhenologyMetric(
+            year=year,
+            location=p1,
+            sos_date=date(year, 4, 10),
+            eos_date=date(year, 10, 10),
+            season_length=100,
+            is_forest=True,
+        ),
+    )
+    repo.upsert(
+        product="test_product",
+        metric=PhenologyMetric(
+            year=year,
+            location=p2,
+            sos_date=date(year, 4, 10),
+            eos_date=date(year, 10, 10),
+            season_length=200,
+            is_forest=True,
+        ),
+    )
+
+    poly = {
+        "type": "Polygon",
+        "coordinates": [
+            [
+                [13.39, 52.49],
+                [13.42, 52.49],
+                [13.42, 52.52],
+                [13.39, 52.52],
+                [13.39, 52.49],
+            ]
+        ],
+    }
+
+    client = TestClient(app_postgis)
+    resp = client.post(
+        "/phenology/area",
+        params={"product": "test_product", "year": year, "min_season_length": 150},
+        json={"geometry": poly},
+    )
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["n"] == 1
+    assert abs(body["mean_season_length"] - 200.0) < 1e-9
+    assert abs(body["forest_fraction"] - 1.0) < 1e-9

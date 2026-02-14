@@ -129,6 +129,8 @@ class PostGISPhenologyRepository(PhenologyRepository):
         product: str,
         year: int,
         polygon_geojson: dict,
+        only_forest: bool = False,
+        min_season_length: int | None = None,
     ) -> dict | None:
 
         sql = GET_AREA_STATS
@@ -141,6 +143,8 @@ class PostGISPhenologyRepository(PhenologyRepository):
                         "product": product,
                         "year": year,
                         "poly": Json(polygon_geojson),
+                        "only_forest": only_forest,
+                        "min_season_length": min_season_length,
                     },
                 )
                 row = cur.fetchone()
