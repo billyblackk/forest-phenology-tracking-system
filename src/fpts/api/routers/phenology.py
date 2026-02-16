@@ -170,6 +170,11 @@ def get_area_phenology_stats(
     only_forest: bool = Query(
         False, description="If True, only include forest points."
     ),
+    season_length_stat: str = Query(
+        "mean",
+        pattern="^(mean|median|both)$",
+        description="How to summarise season_length: mean, median, or both.",
+    ),
     min_season_length: int | None = Query(
         None,
         ge=0,
@@ -187,6 +192,7 @@ def get_area_phenology_stats(
             polygon_geojson=payload.geometry,
             only_forest=only_forest,
             min_season_length=min_season_length,
+            season_length_stat=season_length_stat,
         )
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid GeoJSON geometry")
@@ -202,5 +208,6 @@ def get_area_phenology_stats(
         year=year,
         n=stats["n"],
         mean_season_length=stats["mean_season_length"],
+        median_season_length=stats["median_seaon_length"],
         forest_fraction=stats["forest_fraction"],
     )

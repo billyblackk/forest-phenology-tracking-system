@@ -72,7 +72,9 @@ class PhenologyAreaStatsResponse(BaseModel):
     product: str
     year: int
     n: int
+
     mean_season_length: float | None = None
+    median_season_length: float | None = None
     forest_fraction: float | None = None
 
     model_config = ConfigDict(frozen=True)
