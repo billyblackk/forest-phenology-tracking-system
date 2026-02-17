@@ -530,3 +530,45 @@ def test_phenology_area_both_mean_and_median(app_postgis):
     body = resp.json()
     assert body["mean_season_length"] is not None
     assert body["median_season_length"] is not None
+
+
+@pytest.mark.integration
+def test_phenology_timeseries_returns_400_when_year_range_invalid(app_postgis):
+    client = TestClient(app_postgis)
+    resp = client.get(
+        "/phenology/timeseries",
+        params={
+            "product": "test_product",
+            "lat": 52.5,
+            "lon": 13.4,
+            "start_year": 2022,
+            "end_year": 2020,
+        },
+    )
+    assert resp.status_code == 400
+    assert resp.json()["detail"] == "Invalid parameters: end_year must be <= start_year"
+
+
+@pytest.mark.integration
+def test_phenology_area_rejects_invalid_season_length_stat(app_postgis):
+    client = TestClient(app_postgis)
+
+    poly = {
+        "type": "Polygon",
+        "coordinates": [
+            [
+                [13.39, 52.49],
+                [13.42, 52.49],
+                [13.42, 52.52],
+                [13.39, 52.52],
+                [13.39, 52.49],
+            ]
+        ],
+    }
+
+    resp = client.post(
+        "/phenology/area",
+        params={"product": "test_product", "year": 2020, "season_length_stat": "avg"},
+        json={"geometry": poly},
+    )
+    assert resp.status_code == 422

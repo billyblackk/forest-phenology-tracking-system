@@ -47,22 +47,24 @@ def test_phenology_point_returns_seeded_metric(app_memory):
     assert data["season_length"] == 183
 
 
-def test_phenology_point_returns_404_for_missing_metric(app_memory):
+def test_phenology_point_returns_404_for_missing_metric(
+    app_memory, test_product="test_product", lat=40.0, lon=10.0, year=2020
+):
     client = TestClient(app_memory)
     resp = client.get(
         "/phenology/point",
         params={
-            "product": "test_product",
-            "lat": 40.0,
-            "lon": 10.0,
-            "year": 2020,
+            "product": test_product,
+            "lat": lat,
+            "lon": lon,
+            "year": year,
             "mode": "repo",
         },
     )
     assert resp.status_code == 404
     assert (
         resp.json()["detail"]
-        == f"No phenology data found for this combination of product, location and year"
+        == f"No phenology data found for product: {test_product}, location: Location(lat={lat}, lon={lon}) and year: {year}"
     )
 
 
