@@ -16,6 +16,20 @@ services:
     volumes:
       - db_data:/var/lib/postgresql/data
       - ./src/fpts/sql/ddl:/docker-entrypoint-initdb.d:ro
+  api:
+    build: .
+    container_name: fpts-api
+    environment:
+      ENVIRONMENT: production
+      LOG_LEVEL: info
+      PHENOLOGY_REPO_BACKEND: postgis
+      ENABLE_DEBUG_ROUTES: "false"
+      DATABASE_DSN: postgresql://postgres:postgres@db:5432/fpts
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
 
 volumes:
   db_data:
