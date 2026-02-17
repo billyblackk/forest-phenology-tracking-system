@@ -42,12 +42,14 @@ contracts
 
 ## Architecture
 
+```
 src/fpts/
 ├── api/ (FastAPI routers + schemas)
 ├── query/ (Application services)
 ├── storage/ (Repository interfaces + PostGIS implementation)
 ├── sql/queries/ (Runtime SQL)
 ├── config/ (Settings & configuration)
+```
 
 ### Layers
 
