@@ -1,6 +1,6 @@
 # Forest Phenology Tracking System (FPTS)
 
-A Python system for computing forest **forest phenology metrics** (start/end of growing season, season length) from raster NDVI time series, designed with production-grade architecture and testability in mind.
+A Python system for computing **forest phenology metrics** (start/end of growing season, season length) from raster NDVI time series, designed with production-grade architecture and testability in mind.
 
 Forest phenology metrics (e.g. green-up, senescence) are often computed in notebooks or ad-hoc scripts. This project explores how such computations can be modeled, tested, and exposed as a maintainable software system.
 
@@ -42,10 +42,12 @@ contracts
 
 ## Architecture
 
-src/fpts/ ├── api/ \# FastAPI routers + schemas ├── query/ \#
-Application services ├── storage/ \# Repository interfaces + PostGIS
-implementation ├── sql/queries/ \# Runtime SQL (single source of truth)
-├── config/ \# Settings & configuration
+src/fpts/
+├── api/ (FastAPI routers + schemas)
+├── query/ (Application services)
+├── storage/ (Repository interfaces + PostGIS implementation)
+├── sql/queries/ (Runtime SQL)
+├── config/ (Settings & configuration)
 
 ### Layers
 
