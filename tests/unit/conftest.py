@@ -1,5 +1,5 @@
-import pytest
 from pathlib import Path
+
 import pytest
 
 from fpts.api.main import create_app

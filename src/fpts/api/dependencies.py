@@ -1,9 +1,9 @@
 from fastapi import Request
 
+from fpts.config.settings import Settings
 from fpts.processing.phenology_service import PhenologyComputationService
 from fpts.processing.raster_service import RasterService
 from fpts.query.service import QueryService
-from fpts.config.settings import Settings
 
 
 def get_query_service(request: Request) -> QueryService:
