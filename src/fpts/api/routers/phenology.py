@@ -166,7 +166,7 @@ def get_point_timeseries(
             status_code=404,
             detail=(
                 f"No phenology data found for product: {product}, "
-                "location: {location} and year range {start_year} : {end_year}",
+                f"location: {location} and year range {start_year} : {end_year}",
             ),
         )
 

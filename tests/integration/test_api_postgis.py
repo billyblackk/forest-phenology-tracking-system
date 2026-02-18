@@ -55,6 +55,9 @@ def test_phenology_point_returns_404_for_missing_metric(
 
     detail = resp.json()["detail"]
 
+    if isinstance(detail, list):
+        detail = " ".join(detail)
+
     assert resp.status_code == 404
     assert "No phenology data found" in detail
     assert f"{product}" in detail
@@ -169,6 +172,9 @@ def test_phenology_timeseries_returns_404_when_empty(
 
     detail = resp.json()["detail"]
 
+    if isinstance(detail, list):
+        detail = " ".join(detail)
+
     assert resp.status_code == 404
     assert "No phenology data found" in detail
     assert f"{product}" in detail
@@ -275,6 +281,9 @@ def test_phenology_area_returns_404_when_no_matches(
     )
 
     detail = resp.json()["detail"]
+
+    if isinstance(detail, list):
+        detail = " ".join(detail)
 
     assert resp.status_code == 404
     assert "No phenology data found intersecting this polygon" in detail
