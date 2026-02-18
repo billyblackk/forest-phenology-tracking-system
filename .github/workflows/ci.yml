@@ -58,6 +58,10 @@ jobs:
         run: |
           poetry run ruff check src tests
 
-      - name: Test (pytest + coverage)
+      - name: Unit tests (pytest + coverage)
         run: |
-          poetry run pytest -q --cov=src/fpts --cov-report=term-missing
+          poetry run pytest -q -m "not integration" --cov=src/fpts --cov-report=term-missing
+
+      - name: Integration tests (PostGIS)
+        run: |
+          poetry run pytest -q -m "integration"

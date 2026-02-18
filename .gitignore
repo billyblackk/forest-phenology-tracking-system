@@ -25,6 +25,8 @@ poetry.lock
 # ------------------------
 .env
 *.env
+.env.test
+*.env.test
 
 # ------------------------
 # Local data

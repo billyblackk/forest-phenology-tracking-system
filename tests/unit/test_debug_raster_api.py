@@ -10,7 +10,7 @@ from fpts.config.settings import Settings
 
 
 def test_debug_raster_sample_endpoint(tmp_path: Path):
-    app = create_app(Settings(data_dir=str(tmp_path)))
+    app = create_app(Settings(data_dir=str(tmp_path), enable_debug_routes=True))
 
     # Create raster in expected location
     raster_path = tmp_path / "raw" / "synthetic" / "2020.tif"
