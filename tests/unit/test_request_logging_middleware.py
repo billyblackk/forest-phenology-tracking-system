@@ -1,5 +1,6 @@
-from fastapi.testclient import TestClient
 import uuid
+
+from fastapi.testclient import TestClient
 
 from fpts.api.main import create_app
 from fpts.config.settings import Settings
