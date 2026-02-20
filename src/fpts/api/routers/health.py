@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 
-from fpts.utils.logging import get_logger
 from fpts.config.settings import Settings
+from fpts.utils.logging import get_logger
 
 logger = get_logger(__name__)
 settings = Settings()
