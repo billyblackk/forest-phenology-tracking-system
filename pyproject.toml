@@ -23,6 +23,7 @@ planetary-computer = "^1.0.0"
 requests = "^2.32.5"
 psycopg = {extras = ["binary"], version = "^3.3.2"}
 python-json-logger = "^4.0.0"
+prometheus-client = "^0.24.1"
 
 
 [tool.poetry.group.dev.dependencies]

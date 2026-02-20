@@ -25,6 +25,7 @@ services:
       PHENOLOGY_REPO_BACKEND: postgis
       ENABLE_DEBUG_ROUTES: "false"
       DATABASE_DSN: postgresql://postgres:postgres@db:5432/fpts
+      ENABLE_METRICS: "true"
     ports:
       - "8000:8000"
     depends_on:

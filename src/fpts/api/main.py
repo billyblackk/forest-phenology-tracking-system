@@ -1,10 +1,13 @@
 from fastapi import FastAPI
 
 from fpts.api.routers.debug import router as debug_router
+from fpts.api.routers.health import router as health_router
+from fpts.api.routers.metrics import router as metrics_router
 from fpts.api.routers.phenology import router as phenology_router
 from fpts.api.wiring import wire_in_memory_services, wire_postgis_services
 from fpts.config.settings import Settings
 from fpts.utils.logging import get_logger, setup_logging
+from fpts.utils.metrics import PrometheusMetricsMiddleware
 from fpts.utils.middleware import RequestLoggingMiddleware
 
 logger = get_logger(__name__)
@@ -15,7 +18,6 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     setup_logging(level=settings.log_level, json=(settings.environment == "production"))
 
     app = FastAPI(title=settings.app_name)
-    app.add_middleware(RequestLoggingMiddleware)
     app.state.settings = settings
 
     if settings.phenology_repo_backend == "postgis":
@@ -23,19 +25,18 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     else:
         wire_in_memory_services(app, settings=settings)
 
-    # Routers
+    # Routers and middleware
+    app.include_router(health_router)
     app.include_router(phenology_router)
+
+    app.add_middleware(RequestLoggingMiddleware)
+
+    if settings.enable_metrics:
+        app.add_middleware(PrometheusMetricsMiddleware)
+        app.include_router(metrics_router)
+
     if settings.enable_debug_routes or settings.environment != "production":
         app.include_router(debug_router)
-
-    @app.get("/health")
-    def health_check():
-        logger.info("Health check endpoint called.")
-        return {
-            "status": "ok",
-            "environment": settings.environment,
-            "log_level": settings.log_level,
-        }
 
     return app
 
