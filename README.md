@@ -150,7 +150,7 @@ Production Hardening:
 -   Docker + docker-compose (API + PostGIS) ✅
 -   GitHub Actions CI (lint + tests + coverage) ✅
 -   Structured logging ✅
--   Request logging middleware
+-   Request logging middleware ✅
 -   Optional Prometheus metrics endpoint
 -   Basic caching strategy
 
