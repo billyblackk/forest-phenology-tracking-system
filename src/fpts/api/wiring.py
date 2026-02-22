@@ -13,10 +13,18 @@ def wire_in_memory_services(app, settings: Settings) -> None:
     """
     Wiring for development/testing.
     """
-    # Create cache
+    # Create caches
     app.state.point_metric_cache = InMemoryTTLCache[str, PhenologyMetric](
         maxsize=50_000,
         ttl_seconds=300.0,
+    )
+    app.state.area_stats_cache = InMemoryTTLCache[str, PhenologyMetric](
+        maxsize=5_000,
+        ttl_seconds=3600,
+    )
+    app.state.timeseries_cache = InMemoryTTLCache[str, PhenologyMetric](
+        maxsize=10_000,
+        ttl_seconds=900,
     )
 
     # Local raster repo to read from.
@@ -37,10 +45,18 @@ def wire_postgis_services(app, settings: Settings) -> None:
     """
     Wiring for Production.
     """
-    # Create cache
+    # Create caches
     app.state.point_metric_cache = InMemoryTTLCache[str, PhenologyMetric](
         maxsize=50_000,
         ttl_seconds=300.0,
+    )
+    app.state.area_stats_cache = InMemoryTTLCache[str, PhenologyMetric](
+        maxsize=5_000,
+        ttl_seconds=3600,
+    )
+    app.state.timeseries_cache = InMemoryTTLCache[str, PhenologyMetric](
+        maxsize=10_000,
+        ttl_seconds=900,
     )
 
     # Local raster repo to read from.
