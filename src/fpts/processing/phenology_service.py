@@ -9,6 +9,8 @@ from fpts.domain.models import Location, PhenologyMetric
 from fpts.processing.ndvi_stack import extract_ndvi_timeseries, load_ndvi_stack
 from fpts.processing.phenology_algorithm import compute_sos_eos_threshold
 from fpts.storage.raster_repository import RasterRepository
+from fpts.cache.keys import point_metric_cache_key
+from fpts.cache.ttl_cache import InMemoryTTLCache
 
 
 def _date_from_doy(year: int, doy: int) -> date:
@@ -19,12 +21,19 @@ class PhenologyComputationService:
     """
     Computes phenology metrics for a given location using an NDVI raster time stack.
 
-    Includes a small in-memory cache of loaded stacks keyed by (product, year)
+    Includes:
+        - a small in-memory cache of loaded stacks keyed by (product, year)
+        - caching for computing point phenology
     """
 
-    def __init__(self, raster_repo: RasterRepository) -> None:
+    def __init__(
+        self,
+        raster_repo: RasterRepository,
+        point_cache: InMemoryTTLCache[str, PhenologyMetric] | None = None,
+    ) -> None:
         self._raster_repo = raster_repo
         self._stack_cache: dict[tuple[str, int], xr.DataArray] = {}
+        self._point_cache = point_cache
 
     def compute_point_phenology(
         self,
@@ -35,10 +44,23 @@ class PhenologyComputationService:
         is_forest: bool = True,
     ) -> PhenologyMetric:
 
-        key = (product, year)
+        point_cache_key = point_metric_cache_key(
+            source="compute",
+            product=product,
+            year=year,
+            location=location,
+            threshold_frac=threshold_frac,
+        )
 
-        if key in self._stack_cache:
-            stack = self._stack_cache[key]
+        if self._point_cache is not None:
+            cached = self._point_cache.get(point_cache_key)
+            if cached is not None:
+                return cached
+
+        stack_cache_key = (product, year)
+
+        if stack_cache_key in self._stack_cache:
+            stack = self._stack_cache[stack_cache_key]
 
         else:
             paths = self._raster_repo.list_ndvi_stack_paths(product=product, year=year)
@@ -47,7 +69,7 @@ class PhenologyComputationService:
                     f"No NDVI stack files found for product={product}, year={year}"
                 )
             stack = load_ndvi_stack(paths)
-            self._stack_cache[key] = stack
+            self._stack_cache[stack_cache_key] = stack
 
         time_series = extract_ndvi_timeseries(stack, location)
 
@@ -62,7 +84,7 @@ class PhenologyComputationService:
             _date_from_doy(year, dates.eos_doy) if dates.eos_doy else None
         )
 
-        return PhenologyMetric(
+        metric = PhenologyMetric(
             year=year,
             location=location,
             sos_date=sos_date,
@@ -70,3 +92,8 @@ class PhenologyComputationService:
             season_length=dates.season_length,
             is_forest=is_forest,
         )
+
+        if self._point_cache is not None:
+            self._point_cache.set(point_cache_key, metric)
+
+        return metric
